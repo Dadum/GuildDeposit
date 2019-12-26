@@ -73,6 +73,7 @@ function GuildDeposit:MoveHead()
     else
         self:CancelAllTimers()
         print("Deposit complete")
+        
     end
 end
 
