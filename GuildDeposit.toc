@@ -1,0 +1,7 @@
+## Interface: 80205
+## Title: GuildDeposit
+## Author: Dadum
+## Version: 0.0.1
+
+embeds.xml
+main.lua
