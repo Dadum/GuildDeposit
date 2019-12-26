@@ -4,4 +4,4 @@
 ## Version: 0.0.1
 
 embeds.xml
-main.lua
+Core.lua
