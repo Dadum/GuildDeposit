@@ -3,6 +3,7 @@ GuildDeposit = LibStub("AceAddon-3.0"):NewAddon("GuildDeposit", "AceTimer-3.0")
 local GBSlots = 98
 local curr_bag = 0
 local bag_scan, bag_head, b_free = {}, {}, {}
+local bank_map = {[168649]=3}
 
 function GuildDeposit:ToDeposit()
     curr_bag = 0
@@ -14,7 +15,7 @@ function GuildDeposit:ToDeposit()
         for i=1,slots do
             local id = GetContainerItemID(b,i)
             if id and id == dredged then
-                table.insert(t_bag, i)
+                table.insert(t_bag, {slot=i, id=id})
             end
         end
         bag_scan[b] = t_bag
@@ -23,18 +24,23 @@ function GuildDeposit:ToDeposit()
 end
 
 function GuildDeposit:GBFreeSlots()
-    local free = {}
+    b_free = {}
+    local tabs = GetNumGuildBankTabs()
+    for t = 0, (tabs-1), 1 do
+        local tab_free = {}
         for i = 1, GBSlots, 1 do 
-            if not GetGuildBankItemLink(3,i) then
-                table.insert(free, i)
+            if not GetGuildBankItemLink(t,i) then
+                table.insert(tab_free, i)
             end
         end
-    return free
+        b_free[t] = tab_free
+    end
+    return
 end
 
 function GuildDeposit:DoMoves()
     GuildDeposit:ToDeposit()
-    b_free = GuildDeposit:GBFreeSlots()
+    GuildDeposit:GBFreeSlots()
     self:ScheduleRepeatingTimer("MoveHead", 0.5)
 end
 
@@ -48,17 +54,25 @@ function GuildDeposit:GetBagHead()
         end
         return self:GetBagHead()
     end
-    return item
+    local slot = item.slot
+    local id = item.id
+    return slot, id
+end
+
+function GuildDeposit:GetGuildHead(tab)
+    return table.remove(b_free[tab], 1)
 end
 
 function GuildDeposit:MoveHead()
-    local item = self:GetBagHead()
-    local slot = table.remove(b_free, 1)
-    if item and slot then
+    local item, id = self:GetBagHead()
+    if item and id then
+        local tab = bank_map[id]
+        local slot = self:GetGuildHead(tab)
         PickupContainerItem(curr_bag,item)
-        PickupGuildBankItem(3,slot)
+        PickupGuildBankItem(tab,slot)
     else
         self:CancelAllTimers()
+        print("Deposit complete")
     end
 end
 
