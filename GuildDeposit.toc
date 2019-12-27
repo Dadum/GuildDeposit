@@ -2,6 +2,8 @@
 ## Title: GuildDeposit
 ## Author: Dadum
 ## Version: 0.0.1
+## SavedVariables: GuildDepositDB
 
 embeds.xml
 Core.lua
+Config.lua

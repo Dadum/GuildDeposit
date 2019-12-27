@@ -3,22 +3,34 @@ GuildDeposit = LibStub("AceAddon-3.0"):NewAddon("GuildDeposit", "AceTimer-3.0")
 local GBSlots = 98
 local curr_bag = 0
 local bag_scan, bag_head, b_free = {}, {}, {}
-local bank_map = {[168649]=3}
+local bank_map = {[168649]=3, [152510]=1}
+
+function GuildDeposit:OnInitialize()
+    self.db = LibStub("AceDB-3.0"):New("GuildDepositDB", defaults, true)
+
+    if self.SetupConfig then
+        self.SetupConfig()
+    end
+end
 
 function GuildDeposit:ToDeposit()
-    curr_bag = 0
-    local dredged = 168649
+    self:GBFreeSlots()
     bag_scan = {}
     for b = 0, 4, 1 do
         local slots = GetContainerNumSlots(b)
-        local t_bag = {}
         for i=1,slots do
             local id = GetContainerItemID(b,i)
-            if id and id == dredged then
-                table.insert(t_bag, {slot=i, id=id})
+            if id and bank_map[id] then
+                local tab = bank_map[id]
+                table.insert(bag_scan, {
+                    id=id, 
+                    from_bag=b, 
+                    from_slot=i, 
+                    to_tab=tab, 
+                    to_slot=self:GetGuildHead(tab)
+                })
             end
         end
-        bag_scan[b] = t_bag
     end
     return 
 end
@@ -40,23 +52,13 @@ end
 
 function GuildDeposit:DoMoves()
     GuildDeposit:ToDeposit()
-    GuildDeposit:GBFreeSlots()
     self:ScheduleRepeatingTimer("MoveHead", 0.5)
 end
 
-function GuildDeposit:GetBagHead()
-    local item = table.remove(bag_scan[curr_bag], 1)
-    if not item then 
-        -- bag_head = table.remove(bag_scan, 1)
-        curr_bag = curr_bag + 1
-        if curr_bag > 4 then
-            return
-        end
-        return self:GetBagHead()
-    end
-    local slot = item.slot
-    local id = item.id
-    return slot, id
+function GuildDeposit:GetHead()
+    local item = table.remove(bag_scan, 1)
+    if not item then return end
+    return item.id, item.from_bag, item.from_slot, item.to_tab, item.to_slot
 end
 
 function GuildDeposit:GetGuildHead(tab)
@@ -64,16 +66,14 @@ function GuildDeposit:GetGuildHead(tab)
 end
 
 function GuildDeposit:MoveHead()
-    local item, id = self:GetBagHead()
-    if item and id then
-        local tab = bank_map[id]
-        local slot = self:GetGuildHead(tab)
-        PickupContainerItem(curr_bag,item)
-        PickupGuildBankItem(tab,slot)
+    local _, from_bag, from_slot, to_tab, to_slot = self:GetHead()
+    if from_bag and from_slot and to_tab and to_slot then
+        PickupContainerItem(from_bag, from_slot)
+        PickupGuildBankItem(to_tab, to_slot)
     else
         self:CancelAllTimers()
         print("Deposit complete")
-        
+
     end
 end
 
