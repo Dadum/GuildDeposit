@@ -6,11 +6,9 @@ local bag_scan, bag_head, b_free = {}, {}, {}
 local bank_map = {[168649]=3, [152510]=1}
 
 function GuildDeposit:OnInitialize()
-    self.db = LibStub("AceDB-3.0"):New("GuildDepositDB", defaults, true)
-
-    if self.SetupConfig then
-        self.SetupConfig()
-    end
+    self.db = LibStub("AceDB-3.0"):New("GuildDepositDB", self.defaults, true)
+    self.conf = self.db.profile
+    self:SetupConfig()
 end
 
 function GuildDeposit:ToDeposit()
@@ -52,7 +50,8 @@ end
 
 function GuildDeposit:DoMoves()
     GuildDeposit:ToDeposit()
-    self:ScheduleRepeatingTimer("MoveHead", 0.5)
+    local interval = self.conf.interval
+    self:ScheduleRepeatingTimer("MoveHead", interval)
 end
 
 function GuildDeposit:GetHead()

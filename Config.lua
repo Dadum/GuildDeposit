@@ -4,8 +4,8 @@ optionsTable = {
     name = "Config",
     desc = "General config",
     type = "group",
-    get = function(info) return core.db[info[#info]] end,
-	set = function(info, value) core.db[info[#info]] = value end,
+    -- get = function(info) return core.conf[info.arg] end,
+	-- set = function(info, value) core.conf[info.arg] = value end,
     args = {
         general = {
             type = "group",
@@ -14,10 +14,13 @@ optionsTable = {
                 interval = {
                     name = "Deposit Interval",
                     desc = "Time interval between a deposit and the next. Try increasing if some deposits are missed.",
+                    descStyle = "inline",
                     type = "range",
                     min = 0.1,
-                    max = 5.0,
-                    step = 0.1
+                    max = 3.0,
+                    step = 0.1,
+                    set = function(info, val) core.conf.interval = val end,
+                    get = function(info) return core.conf.interval end
                   },
             }
         }
@@ -28,7 +31,7 @@ core.options = optionsTable
 
 function core:SetupConfig()
 	local acreg = LibStub("AceConfig-3.0")
-    acreg:RegisterOptionsTable("GuildDeposit", optionsTable, "/testconf")
+    acreg:RegisterOptionsTable("GuildDeposit", optionsTable)
     -- acreg:RegisterOptionsTable("GuildDeposit Profiles", LibStub("AceDBOptions-3.0"):GetOptionsTable(core.db))
 
 	local acdia = LibStub("AceConfigDialog-3.0")
@@ -36,11 +39,17 @@ function core:SetupConfig()
     -- acdia:AddToBlizOptions("GuildDeposit Profiles", "Profiles", "GuildDeposit")
 end
 
-function core:Defaults()
-    local defaults = {
-        profile = {
-            interval = 1.0
-        }
+-- function core:Defaults()
+--     local defaults = {
+--         profile = {
+--             interval = 0.5   
+--         }
+--     }
+--     return defaults
+-- end
+
+core.defaults = {
+    profile = {
+        interval = 0.5
     }
-    return defaults
-end
+}
