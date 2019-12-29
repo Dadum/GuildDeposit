@@ -4,7 +4,7 @@
 ## Version: 0.0.1
 ## SavedVariables: GuildDepositDB
 
-localization/localization.core.lua
+Localization/Localization.core.lua
 embeds.xml
-core.lua
-config.lua
+Core.lua
+Config.lua
