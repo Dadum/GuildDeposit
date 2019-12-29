@@ -6,43 +6,33 @@ core.options = {
     -- get = function(info) return core.conf[info.arg] end,
     -- set = function(info, value) core.conf[info.arg] = value end,
     args = {
-        type = "group",
-        name = L["General"],
-        args = {
-            showStatus = {
-                name = L["Show Progress Bar"],
-                desc = L["Toggle visibility of progress bar while storing items"],
-                type = "toggle",
-                order = 1,
-                set = function(info, val)
-                    core.conf.showStatus = val
-                end,
-                get = function(info) return core.conf.showStatus end
-            },
-            -- TODO: implement
-            autoDeposit = {
-                name = L["Auto Deposit"],
-                desc = L["Automatically start deposit when guild bank is open"],
-                type = "toggle",
-                order = 2,
-                set = function(info, val)
-                    core.conf.autoDeposit = val
-                end,
-                get = function(info) return core.conf.autoDeposit end
-            },
-            interval = {
-                name = L["Deposit Interval"],
-                desc = L["Time interval between a deposit and the next. Try increasing if some deposits are missed."],
-                type = "range",
-                min = 0.1,
-                max = 5.0,
-                step = 0.1,
-                order = 3,
-                set = function(info, val)
-                    core.conf.interval = val
-                end,
-                get = function(info) return core.conf.interval end
-            }
+        showStatus = {
+            name = L["Show Progress Bar"],
+            desc = L["Toggle visibility of progress bar while storing items"],
+            type = "toggle",
+            order = 1,
+            set = function(info, val) core.conf.showStatus = val end,
+            get = function(info) return core.conf.showStatus end
+        },
+        -- TODO: implement
+        autoDeposit = {
+            name = L["Auto Deposit"],
+            desc = L["Automatically start deposit when guild bank is open"],
+            type = "toggle",
+            order = 2,
+            set = function(info, val) core.conf.autoDeposit = val end,
+            get = function(info) return core.conf.autoDeposit end
+        },
+        interval = {
+            name = L["Deposit Interval"],
+            desc = L["Time interval between a deposit and the next. Try increasing if some deposits are missed."],
+            type = "range",
+            min = 0.1,
+            max = 5.0,
+            step = 0.1,
+            order = 3,
+            set = function(info, val) core.conf.interval = val end,
+            get = function(info) return core.conf.interval end
         }
     }
 }
