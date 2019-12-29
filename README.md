@@ -4,7 +4,7 @@
   - [Usage](#usage)
     - [Slash commands](#slash-commands)
 
-WoW addon to automate storing items into guild bank.
+WoW addon to automate guild deposit operations.
 
 ## Usage
 
