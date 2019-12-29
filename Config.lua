@@ -15,7 +15,6 @@ core.options = {
             set = function(info, val) core.conf.showStatus = val end,
             get = function(info) return core.conf.showStatus end
         },
-        -- TODO: implement
         autoDeposit = {
             name = L["Auto Deposit"],
             desc = L["Automatically start deposit when guild bank is open"],

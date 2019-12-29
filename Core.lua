@@ -1,5 +1,4 @@
 GuildDeposit = LibStub("AceAddon-3.0"):NewAddon("GuildDeposit")
-local A = GuildDeposit
 local Timer = LibStub("AceTimer-3.0")
 local _, L = ...
 local GBSlots = 98
@@ -9,7 +8,7 @@ function GuildDeposit:OnInitialize()
     self.conf = self.db.profile
     self:SetupConfig()
     self:CreateProgressFrame()
-
+    self:Events()
 end
 
 function GuildDeposit:OnGuildBankClose() self.ProgressFrame:Hide() end
@@ -17,7 +16,13 @@ function GuildDeposit:OnGuildBankClose() self.ProgressFrame:Hide() end
 function GuildDeposit:Events()
     self.GB_CLOSED = CreateFrame('Frame')
     self.GB_CLOSED:RegisterEvent('GUILDBANKFRAME_CLOSED')
-    self.GB_CLOSED:SetScript("OnEvent", function() GuildDeposit:EndDeposit() end)
+    self.GB_CLOSED:SetScript("OnEvent", function() self.ProgressFrame:Hide() end)
+
+    self.GB_OPEN = CreateFrame('Frame')
+    self.GB_OPEN:RegisterEvent('GUILDBANKFRAME_OPENED')
+    self.GB_OPEN:SetScript("OnEvent", function()
+        if self.conf.autoDeposit then self:StartDeposit() end
+    end)
 end
 -- add all items from specified bag to the mappings
 -- TODO: ignore soulbound
