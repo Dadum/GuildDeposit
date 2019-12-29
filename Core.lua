@@ -82,7 +82,7 @@ function GuildDeposit:GBFreeSlots()
     -- reset table
     self.guildBankSlots = {}
     local tabs = GetNumGuildBankTabs()
-    for t = 0, (tabs - 1), 1 do
+    for t = 1, tabs, 1 do
         local tab_free = {}
         for i = 1, GBSlots, 1 do
             if not GetGuildBankItemLink(t, i) then
@@ -112,7 +112,8 @@ end
 
 -- remove and return first free slots in guild bank
 function GuildDeposit:GetGuildHead(tab)
-    return table.remove(self.guildBankSlots[tab], 1)
+    local t = tonumber(tab)
+    return table.remove(self.guildBankSlots[t], 1)
 end
 
 -- perform one move
@@ -226,7 +227,7 @@ SLASH_MAPBAG1 = "/gdbag"
 SlashCmdList["MAPBAG"] = function(msg)
     local arg1, arg2 = strsplit(" ", msg)
     if arg1 and arg2 then
-        GuildDeposit:MapBag(arg1, arg2)
+        GuildDeposit:MapBag(tonumber(arg1), tonumber(arg2))
     else
         print("Usage: /gbbag <bag_number> <tab_number>")
     end
@@ -236,7 +237,7 @@ SLASH_MAPTAB1 = "/gdtab"
 SlashCmdList["MAPTAB"] = function(msg)
     local arg1 = strsplit(" ", msg)
     if arg1 and string.len(arg1) > 0 then
-        GuildDeposit:MapTab(arg1)
+        GuildDeposit:MapTab(tonumber(arg1))
     elseif GetCurrentGuildBankTab() then
         local tab = GetCurrentGuildBankTab()
         if tab then
