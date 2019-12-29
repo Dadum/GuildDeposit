@@ -10,6 +10,7 @@ core.options = {
             name = L["Show Progress Bar"],
             desc = L["Toggle visibility of progress bar while storing items"],
             type = "toggle",
+            width = 'full',
             order = 1,
             set = function(info, val) core.conf.showStatus = val end,
             get = function(info) return core.conf.showStatus end
@@ -19,6 +20,7 @@ core.options = {
             name = L["Auto Deposit"],
             desc = L["Automatically start deposit when guild bank is open"],
             type = "toggle",
+            width = 'full',
             order = 2,
             set = function(info, val) core.conf.autoDeposit = val end,
             get = function(info) return core.conf.autoDeposit end
@@ -27,12 +29,44 @@ core.options = {
             name = L["Deposit Interval"],
             desc = L["Time interval between a deposit and the next. Try increasing if some deposits are missed."],
             type = "range",
+            width = 'full',
+            order = 3,
             min = 0.1,
             max = 5.0,
             step = 0.1,
-            order = 3,
             set = function(info, val) core.conf.interval = val end,
             get = function(info) return core.conf.interval end
+        },
+        slashtitle = {name = L["Slash commands"], type = 'header', order = 10},
+        gdesc = {
+            name = L["/gd | /guilddeposit: open GuildDeposit configuration."],
+            type = 'description',
+            order = 11
+        },
+        depdesc = {
+            name = L["/gdeposit | /gdep: deposit items."],
+            type = 'description',
+            order = 12
+        },
+        mapbagdesc = {
+            name = L["/gdbag <bag_nubmer> <tab_number>: add all the items contained in bag <bag_number> to the map for tab <tab_number>."],
+            type = 'description',
+            order = 13
+        },
+        maptabdesc = {
+            name = L["/gdtab (<tab_number>): add all the items in tab <tab_number>. If no tab is provided, the current tab is used."],
+            type = 'description',
+            order = 14
+        },
+        printmapdesc = {
+            name = L["/gdprint: prints the mappings in chat"],
+            type = 'description',
+            order = 15
+        },
+        clearmapdesc = {
+            name = L["/gdclear: clears all mappings"],
+            type = 'description',
+            order = 16
         }
     }
 }
