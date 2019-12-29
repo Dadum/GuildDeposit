@@ -1,10 +1,11 @@
 ## Interface: 80205
-## Title: GuildDeposit
-## Author: Dadum
+## Title: GuildDeposit 
+## Author: dadum
 ## Version: 0.0.1
 ## SavedVariables: GuildDepositDB
 
-Localization/Localization.core.lua
 embeds.xml
+Localization/Localization.core.lua
+
 Core.lua
 Config.lua
