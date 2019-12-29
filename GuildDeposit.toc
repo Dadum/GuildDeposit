@@ -1,5 +1,6 @@
 ## Interface: 80205
 ## Title: GuildDeposit 
+## Notes: Automate guild bank deposit operations
 ## Author: dadum
 ## Version: 0.0.1
 ## SavedVariables: GuildDepositDB
