@@ -17,4 +17,4 @@ WoW addon to automate storing items into guild bank.
 - `/gdprint`: print the mappings.
 - `/gdclear`: clear the mappings.
 
-**ps** pupu 
+**p.s.** pupu
