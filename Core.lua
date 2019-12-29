@@ -2,17 +2,53 @@ GuildDeposit = LibStub("AceAddon-3.0"):NewAddon("GuildDeposit")
 local Timer = LibStub("AceTimer-3.0")
 local _, L = ...
 local GBSlots = 98
-local bank_map = {[168649] = 3, [152510] = 1}
 
 function GuildDeposit:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("GuildDepositDB", self.defaults, true)
     self.conf = self.db.profile
+    if not self.conf.map then self.conf.map = {} end
+    if not self.guildBankSlots then self.guildBankSlots = {} end
+    if not self.depositList then self.depositList = {} end
     self:SetupConfig()
     self:CreateProgressFrame()
 end
 
 -- add all items from specified bag to the mappings
-function GuildDeposit:BagMapping() end
+-- TODO: ignore soulbound
+function GuildDeposit:MapBag(bag, tab)
+    local slots = GetContainerNumSlots(bag)
+    for i = 1, slots, 1 do
+        local id = GetContainerItemID(bag, i)
+        if id then table.insert(self.conf.map, id, tab) end
+    end
+    print("MapBag for bag " .. bag .. " to tab " .. tab .. " complete")
+end
+
+-- add all items from a specified guild bank tab to the mappings
+function GuildDeposit:MapTab(tab)
+    for i = 1, GBSlots, 1 do
+        local link = GetGuildBankItemLink(tab, i)
+        if link then
+            local id = GetItemInfoInstant(link)
+            table.insert(self.conf.map, id, tab)
+        end
+    end
+    print("MapTab for tab " .. tab .. " complete")
+end
+
+-- print any table
+function GuildDeposit:PrintTable(table)
+    for k, v in pairs(table) do print(k .. ": " .. v) end
+end
+
+-- print map
+function GuildDeposit:PrintMap() self:PrintTable(self.conf.map) end
+
+-- clear whole map
+function GuildDeposit:ClearMap()
+    self.conf.map = {}
+    print("map cleared")
+end
 
 -- compose list of items that have to be deposited and where they can be placed
 function GuildDeposit:ToDeposit()
@@ -27,8 +63,8 @@ function GuildDeposit:ToDeposit()
         for i = 1, slots do
             -- check id in map
             local id = GetContainerItemID(b, i)
-            if id and bank_map[id] then
-                local tab = bank_map[id]
+            if id and self.conf.map[id] then
+                local tab = self.conf.map[id]
                 table.insert(self.depositList, {
                     id = id,
                     from_bag = b,
@@ -176,13 +212,43 @@ end
 SLASH_TEST1 = "/test"
 SlashCmdList["TEST"] = function(msg) GuildDeposit:StartDeposit() end
 
-SLASH_DEPOSIT1 = "/deposit"
-SLASH_DEPOSIT2 = "/dep"
-SlashCmdList["DEPOSIT"] = function(msg) GuildDeposit:DoMoves() end
+SLASH_DEPOSIT1 = "/gdeposit"
+SLASH_DEPOSIT2 = "/gdep"
+SlashCmdList["DEPOSIT"] = function(msg) GuildDeposit:StartDeposit() end
 
 SLASH_GUILDDEPOSIT1 = "/guilddeposit"
-SLASH_GUILDDEPOSIT2 = "/gdep"
-SLASH_GUILDDEPOSIT3 = "/gd"
+SLASH_GUILDDEPOSIT2 = "/gd"
 SlashCmdList["GUILDDEPOSIT"] = function(msg)
     InterfaceOptionsFrame_OpenToCategory("GuildDeposit")
 end
+
+SLASH_MAPBAG1 = "/gdbag"
+SlashCmdList["MAPBAG"] = function(msg)
+    local arg1, arg2 = strsplit(" ", msg)
+    if arg1 and arg2 then
+        GuildDeposit:MapBag(arg1, arg2)
+    else
+        print("Usage: /gbbag <bag_number> <tab_number>")
+    end
+end
+
+SLASH_MAPTAB1 = "/gdtab"
+SlashCmdList["MAPTAB"] = function(msg)
+    local arg1 = strsplit(" ", msg)
+    if arg1 and string.len(arg1) > 0 then
+        GuildDeposit:MapTab(arg1)
+    elseif GetCurrentGuildBankTab() then
+        local tab = GetCurrentGuildBankTab()
+        if tab then
+            GuildDeposit:MapTab(tab)
+        else
+            print("tab could not be found")
+        end
+    end
+end
+
+SLASH_MAPCLEAR1 = "/gdclear"
+SlashCmdList["MAPCLEAR"] = function(msg) GuildDeposit:ClearMap() end
+
+SLASH_MAPPRINT1 = "/gdprint"
+SlashCmdList["MAPPRINT"] = function(msg) GuildDeposit:PrintMap() end
