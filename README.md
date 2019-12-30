@@ -8,6 +8,8 @@ WoW addon to automate guild deposit operations.
 
 ## Usage
 
+The addon keeps a map of which item has to be stored in which tab. To start using the addon, please use the `/gdbag` or `/gdtab` to add some mappings.
+
 ### Slash commands
 
 - `/gd`, `/guilddeposit`: open configuration.
