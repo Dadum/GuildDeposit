@@ -88,6 +88,17 @@ function GuildDeposit:ToDeposit()
     end
 end
 
+-- compose list of items to withdraw from tab
+function GuildDeposit:ToWithdraw(tab)
+    self.withdrawList = {}
+    for i = 1, GBSlots, 1 do
+        local link = GetGuildBankItemLink(tab, i)
+        if link then
+            table.insert(self.withdrawList, {tab = tab, slot = i})
+        end
+    end
+end
+
 -- scan through guild bank and get the free slots for each tab
 function GuildDeposit:GBFreeSlots()
     -- reset table
@@ -145,6 +156,15 @@ function GuildDeposit:EndDeposit()
     print(L["Deposit complete!"])
 end
 
+function GuildDeposit:WithdrawHead()
+    local item = table.remove(self.withdrawList, 1)
+    if item then
+        AutoStoreGuildBankItem(item.tab, item.slot)
+    else
+        self:EndDeposit()
+    end
+end
+
 function GuildDeposit:ProgressFrame_OnUpdate(elapsed)
     self.Info.timer = self.Info.timer - elapsed
     if (self.Info.timer > 0) then return end
@@ -153,7 +173,11 @@ function GuildDeposit:ProgressFrame_OnUpdate(elapsed)
     self.status:SetValue(self.Info.counter)
     self.Info.counter = self.Info.counter + 1
     self.status.text:SetText((self.Info.counter) .. " / " .. (self.Info.max))
-    GuildDeposit:MoveHead()
+    if self.Info.withdraw then
+        GuildDeposit:WithdrawHead()
+    else
+        GuildDeposit:MoveHead()
+    end
 end
 
 -- create progress bar frame
@@ -198,7 +222,8 @@ function GuildDeposit:CreateProgressFrame()
         timer = 0,
         items = {},
         max = 0,
-        counter = 0
+        counter = 0,
+        whithdraw = false
     }
 
     self.ProgressFrame:SetScript("OnUpdate", self.ProgressFrame_OnUpdate)
@@ -214,6 +239,23 @@ function GuildDeposit:StartDeposit()
     self.ProgressFrame.Info.items = self.depositList
     self.ProgressFrame.Info.max = table.getn(self.depositList)
     self.ProgressFrame.Info.counter = 0
+    self.ProgressFrame.Info.withdraw = false
+
+    self.ProgressFrame.status:SetValue(0)
+    self.ProgressFrame.status:SetMinMaxValues(0, self.ProgressFrame.Info.max)
+
+    self.ProgressFrame:Show()
+end
+
+function GuildDeposit:StartWithdraw(tab)
+    self:ToWithdraw(tab)
+    self.ProgressFrame:SetAlpha(self.conf.showStatus and 1 or 0)
+    self.ProgressFrame.Info.interval = self.conf.interval
+    self.ProgressFrame.Info.timer = 0
+    self.ProgressFrame.Info.items = self.withdrawList
+    self.ProgressFrame.Info.max = table.getn(self.withdrawList)
+    self.ProgressFrame.Info.counter = 0
+    self.ProgressFrame.Info.withdraw = true
 
     self.ProgressFrame.status:SetValue(0)
     self.ProgressFrame.status:SetMinMaxValues(0, self.ProgressFrame.Info.max)
@@ -224,18 +266,18 @@ end
 SLASH_TEST1 = "/test"
 SlashCmdList["TEST"] = function(msg) GuildDeposit:StartDeposit() end
 
-SLASH_DEPOSIT1 = "/gdeposit"
-SLASH_DEPOSIT2 = "/gdep"
-SlashCmdList["DEPOSIT"] = function(msg) GuildDeposit:StartDeposit() end
+SLASH_GDDEPOSIT1 = "/gdeposit"
+SLASH_GDDEPOSIT2 = "/gdep"
+SlashCmdList["GDDEPOSIT"] = function(msg) GuildDeposit:StartDeposit() end
 
-SLASH_GUILDDEPOSIT1 = "/guilddeposit"
-SLASH_GUILDDEPOSIT2 = "/gd"
-SlashCmdList["GUILDDEPOSIT"] = function(msg)
+SLASH_GDGUILDDEPOSIT1 = "/guilddeposit"
+SLASH_GDGUILDDEPOSIT2 = "/gd"
+SlashCmdList["GDGUILDDEPOSIT"] = function(msg)
     InterfaceOptionsFrame_OpenToCategory("GuildDeposit")
 end
 
-SLASH_MAPBAG1 = "/gdbag"
-SlashCmdList["MAPBAG"] = function(msg)
+SLASH_GDMAPBAG1 = "/gdbag"
+SlashCmdList["GDMAPBAG"] = function(msg)
     local arg1, arg2 = strsplit(" ", msg)
     if arg1 and arg2 then
         GuildDeposit:MapBag(tonumber(arg1), tonumber(arg2))
@@ -244,8 +286,8 @@ SlashCmdList["MAPBAG"] = function(msg)
     end
 end
 
-SLASH_MAPTAB1 = "/gdtab"
-SlashCmdList["MAPTAB"] = function(msg)
+SLASH_GDMAPTAB1 = "/gdtab"
+SlashCmdList["GDMAPTAB"] = function(msg)
     local arg1 = strsplit(" ", msg)
     if arg1 and string.len(arg1) > 0 then
         GuildDeposit:MapTab(tonumber(arg1))
@@ -259,8 +301,23 @@ SlashCmdList["MAPTAB"] = function(msg)
     end
 end
 
-SLASH_MAPCLEAR1 = "/gdclear"
-SlashCmdList["MAPCLEAR"] = function(msg) GuildDeposit:ClearMap() end
+SLASH_GDWITHDRAW1 = "/gdwithdraw"
+SlashCmdList["GDWITHDRAW"] = function(msg)
+    local arg1 = strsplit(" ", msg)
+    if arg1 and string.len(arg1) > 0 then
+        GuildDeposit:StartWithdraw(tonumber(arg1))
+    elseif GetCurrentGuildBankTab() then
+        local tab = GetCurrentGuildBankTab()
+        if tab then
+            GuildDeposit:StartWithdraw(tab)
+        else
+            print("tab could not be found")
+        end
+    end
+end
 
-SLASH_MAPPRINT1 = "/gdprint"
-SlashCmdList["MAPPRINT"] = function(msg) GuildDeposit:PrintMap() end
+SLASH_GDMAPCLEAR1 = "/gdclear"
+SlashCmdList["GDMAPCLEAR"] = function(msg) GuildDeposit:ClearMap() end
+
+SLASH_GDMAPPRINT1 = "/gdprint"
+SlashCmdList["GDMAPPRINT"] = function(msg) GuildDeposit:PrintMap() end

@@ -4,6 +4,7 @@
 ## Author: dadum
 ## Version: 0.0.1
 ## SavedVariables: GuildDepositDB
+## LoadWith: Blizzard_GuildBankUI
 
 embeds.xml
 Localization/Localization.core.lua
