@@ -96,7 +96,8 @@ core.defaults = {
         showStatus = true,
         autoDeposit = false,
         depositInterval = 0.5,
-        withdrawInterval = 0.5
+        withdrawInterval = 0.5,
+        map = {}
     }
 }
 
