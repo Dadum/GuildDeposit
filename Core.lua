@@ -234,7 +234,7 @@ end
 function GuildDeposit:StartDeposit()
     self:ToDeposit()
     self.ProgressFrame:SetAlpha(self.conf.showStatus and 1 or 0)
-    self.ProgressFrame.Info.interval = self.conf.interval
+    self.ProgressFrame.Info.interval = self.conf.depositInterval
     self.ProgressFrame.Info.timer = 0
     self.ProgressFrame.Info.items = self.depositList
     self.ProgressFrame.Info.max = table.getn(self.depositList)
@@ -250,7 +250,7 @@ end
 function GuildDeposit:StartWithdraw(tab)
     self:ToWithdraw(tab)
     self.ProgressFrame:SetAlpha(self.conf.showStatus and 1 or 0)
-    self.ProgressFrame.Info.interval = self.conf.interval
+    self.ProgressFrame.Info.interval = self.conf.withdrawInterval
     self.ProgressFrame.Info.timer = 0
     self.ProgressFrame.Info.items = self.withdrawList
     self.ProgressFrame.Info.max = table.getn(self.withdrawList)

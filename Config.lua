@@ -9,6 +9,7 @@ core.options = {
         showStatus = {
             name = L["Show Progress Bar"],
             desc = L["Toggle visibility of progress bar while storing items"],
+            descStyle = 'inline',
             type = "toggle",
             width = 'full',
             order = 1,
@@ -17,14 +18,15 @@ core.options = {
         },
         autoDeposit = {
             name = L["Auto Deposit"],
-            desc = L["Automatically start deposit when guild bank is open"],
+            desc = L["Automatically start deposit when guild bank is opened"],
+            descStyle = 'inline',
             type = "toggle",
             width = 'full',
             order = 2,
             set = function(info, val) core.conf.autoDeposit = val end,
             get = function(info) return core.conf.autoDeposit end
         },
-        interval = {
+        depositInterval = {
             name = L["Deposit Interval"],
             desc = L["Time interval between a deposit and the next. Try increasing if some deposits are missed."],
             type = "range",
@@ -33,45 +35,69 @@ core.options = {
             min = 0.1,
             max = 5.0,
             step = 0.1,
-            set = function(info, val) core.conf.interval = val end,
-            get = function(info) return core.conf.interval end
+            set = function(info, val) core.conf.depositInterval = val end,
+            get = function(info) return core.conf.depositInterval end
         },
-        slashtitle = {name = L["Slash commands"], type = 'header', order = 10},
+        withdrawInterval = {
+            name = L["Withdraw Interval"],
+            desc = L["Time interval between a withdraw and the next. Try increasing if some withdraws are missed."],
+            type = "range",
+            width = 'full',
+            order = 4,
+            min = 0.1,
+            max = 5.0,
+            step = 0.1,
+            set = function(info, val)
+                core.conf.withdrawInterval = val
+            end,
+            get = function(info) return core.conf.withdrawInterval end
+        },
+        slashtitle = {name = L["Slash commands"], type = 'header', order = 20},
         gdesc = {
             name = L["/gd | /guilddeposit: open GuildDeposit configuration."],
             type = 'description',
-            order = 11
+            order = 30
         },
         depdesc = {
             name = L["/gdeposit | /gdep: deposit items."],
             type = 'description',
-            order = 12
+            order = 40
+        },
+        withdesc = {
+            name = L["/gdwithdraw <tab_number>: withdraw all the items from tab <tab_number>. If no number is specified, the current tab will be used."],
+            type = 'description',
+            order = 50
         },
         mapbagdesc = {
             name = L["/gdbag <bag_nubmer> <tab_number>: add all the items contained in bag <bag_number> to the map for tab <tab_number>."],
             type = 'description',
-            order = 13
+            order = 60
         },
         maptabdesc = {
-            name = L["/gdtab (<tab_number>): add all the items in tab <tab_number>. If no tab is provided, the current tab is used."],
+            name = L["/gdtab <tab_number>: add all the items in tab <tab_number>. If no tab is provided, the current tab is used."],
             type = 'description',
-            order = 14
+            order = 70
         },
         printmapdesc = {
             name = L["/gdprint: prints the mappings in chat"],
             type = 'description',
-            order = 15
+            order = 80
         },
         clearmapdesc = {
             name = L["/gdclear: clears all mappings"],
             type = 'description',
-            order = 16
+            order = 90
         }
     }
 }
 
 core.defaults = {
-    profile = {showStatus = true, autoDeposit = false, interval = 0.5}
+    profile = {
+        showStatus = true,
+        autoDeposit = false,
+        depositInterval = 0.5,
+        withdrawInterval = 0.5
+    }
 }
 
 function core:SetupConfig()
