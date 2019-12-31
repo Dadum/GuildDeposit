@@ -24,13 +24,24 @@ function GuildDeposit:Events()
         if self.conf.autoDeposit then self:StartDeposit() end
     end)
 end
+
+-- add entry to map ass well as link and item name in a separate table
+function GuildDeposit:AddMap(id, tab)
+    local name, link = GetItemInfo(id)
+    if name and link then
+        print(link)
+        table.insert (self.conf.itemInfo, id, {name=name, link=link})
+    end
+    table.insert(self.conf.map, id, tab)
+end
+
 -- add all items from specified bag to the mappings
 -- TODO: ignore soulbound
 function GuildDeposit:MapBag(bag, tab)
     local slots = GetContainerNumSlots(bag)
     for i = 1, slots, 1 do
         local id = GetContainerItemID(bag, i)
-        if id then table.insert(self.conf.map, id, tab) end
+        if id then self:AddMap(id, tab) end
     end
     print("MapBag for bag " .. bag .. " to tab " .. tab .. " complete")
 end
@@ -41,7 +52,7 @@ function GuildDeposit:MapTab(tab)
         local link = GetGuildBankItemLink(tab, i)
         if link then
             local id = GetItemInfoInstant(link)
-            table.insert(self.conf.map, id, tab)
+            self:AddMap(id, tab)
         end
     end
     print("MapTab for tab " .. tab .. " complete")
