@@ -14,14 +14,35 @@ local GetMapString = function(info)
     for k, v in pairs(core.conf.map) do
         local info = core.conf.itemInfo[k]
         if not info then return "error" end
-        str = str .. info.link .. " " .. v .. "\n"
+        str = str .. info.link .. "-" .. v .. "\n"
     end
     return str
 end
 
 local ParseMap = function(info, val)
-    local t = {strsplit("\n", val)}
-    core:PrintTable(t)
+    local linesplit = {strsplit("\n", val)}
+    local temp = {}
+    for _, i in pairs(linesplit) do
+        local key, tab = strsplit("-", i)
+        -- skip empty lines
+        if key and tab then
+            print(key)
+            print(tab)
+            local tabnum = tonumber(tab)
+            if not tabnum then
+                print(
+                    L["ERROR: wrong format, tab must bee a number!. See usage for more info"])
+                return
+            end
+            local id = GetItemInfoInstant(key)
+            if not id then
+                print(L["ERROR: invalid item!"])
+                return
+            end
+            table.insert(temp, id, tabnum)
+        end
+    end
+    core.conf.map = temp
 end
 
 local generalOptions = {
@@ -131,7 +152,8 @@ local mapOptions = {
     testMultisel = {
         name = 'test',
         type = 'input',
-        multiline = 5,
+        multiline = 10,
+        width = 'full',
         get = GetMapString,
         set = ParseMap
     }
