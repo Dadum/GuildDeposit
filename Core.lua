@@ -30,7 +30,7 @@ function GuildDeposit:AddMap(id, tab)
     local name, link = GetItemInfo(id)
     if name and link then
         print(link)
-        table.insert (self.conf.itemInfo, id, {name=name, link=link})
+        table.insert(self.conf.itemInfo, id, {name = name, link = link})
     end
     table.insert(self.conf.map, id, tab)
 end
@@ -202,7 +202,7 @@ function GuildDeposit:CreateProgressFrame()
 
     self.ProgressFrame.title = self.ProgressFrame:CreateFontString(nil,
                                                                    "OVERLAY")
-    self.ProgressFrame.title:FontTemplate(nil, 12, "OUTLINE")
+    self.ProgressFrame.title:FontTemplate(nil, 10, "OUTLINE")
     self.ProgressFrame.title:Point("TOP", self.ProgressFrame, "TOP", 0, -2)
     self.ProgressFrame.title:SetText(L["Deposit Items"])
 
@@ -220,21 +220,20 @@ function GuildDeposit:CreateProgressFrame()
     self.ProgressFrame.status.animation.progress =
         self.ProgressFrame.status.animation:CreateAnimation("Progress")
     self.ProgressFrame.status.animation.progress:SetSmoothing("OUT")
-    self.ProgressFrame.status.animation.progress:SetDuration(.2)
+    self.ProgressFrame.status.animation.progress:SetDuration(.4)
 
     self.ProgressFrame.status.text = self.ProgressFrame.status:CreateFontString(
                                          nil, "OVERLAY")
-    self.ProgressFrame.status.text:FontTemplate(nil, 12, "OUTLINE")
+    self.ProgressFrame.status.text:FontTemplate(nil, 9, "OUTLINE")
     self.ProgressFrame.status.text:Point("CENTER", self.ProgressFrame.status)
     self.ProgressFrame.status.text:SetText("0s")
 
     self.ProgressFrame.Info = {
         interval = 0,
         timer = 0,
-        items = {},
         max = 0,
         counter = 0,
-        whithdraw = false
+        whithdraw = false,
     }
 
     self.ProgressFrame:SetScript("OnUpdate", self.ProgressFrame_OnUpdate)
@@ -247,7 +246,6 @@ function GuildDeposit:StartDeposit()
     self.ProgressFrame:SetAlpha(self.conf.showStatus and 1 or 0)
     self.ProgressFrame.Info.interval = self.conf.depositInterval
     self.ProgressFrame.Info.timer = 0
-    self.ProgressFrame.Info.items = self.depositList
     self.ProgressFrame.Info.max = table.getn(self.depositList)
     self.ProgressFrame.Info.counter = 0
     self.ProgressFrame.Info.withdraw = false

@@ -1,0 +1,6 @@
+- check stackable for deposit (getiteminfo returns maxstack)
+- autodeposit reagents
+  - tab to type
+- merge stacks
+- sort
+- 
