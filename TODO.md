@@ -1,6 +1,7 @@
 - check stackable for deposit (getiteminfo returns maxstack)
 - autodeposit reagents
   - tab to type
+- buttons for guildbank ui
 - merge stacks
 - sort
 - 
