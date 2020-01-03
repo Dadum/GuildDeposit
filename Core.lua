@@ -3,6 +3,7 @@ local Timer = LibStub("AceTimer-3.0")
 local _, L = ...
 local GBSlots = 98
 
+-- ####################### INIT #######################
 function GuildDeposit:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("GuildDepositDB", self.defaults, true)
     self.conf = self.db.profile
@@ -11,8 +12,11 @@ function GuildDeposit:OnInitialize()
     self:Events()
 end
 
+-- ####################### EVENTS #######################
+-- guild bank closed
 function GuildDeposit:OnGuildBankClose() self.ProgressFrame:Hide() end
 
+-- regoster events
 function GuildDeposit:Events()
     self.GB_CLOSED = CreateFrame('Frame')
     self.GB_CLOSED:RegisterEvent('GUILDBANKFRAME_CLOSED')
@@ -25,6 +29,7 @@ function GuildDeposit:Events()
     end)
 end
 
+-- ####################### MAP LOGIC #######################
 -- add entry to map ass well as link and item name in a separate table
 function GuildDeposit:AddMap(id, tab)
     local name, link = GetItemInfo(id)
@@ -127,6 +132,7 @@ function GuildDeposit:GBFreeSlots()
     end
 end
 
+-- ####################### INTERACTION LOGIC #######################
 -- store items
 function GuildDeposit:DoMoves()
     GuildDeposit:ToDeposit()
@@ -167,6 +173,7 @@ function GuildDeposit:EndDeposit()
     print(L["Deposit complete!"])
 end
 
+-- withdraw head from guild bank
 function GuildDeposit:WithdrawHead()
     local item = table.remove(self.withdrawList, 1)
     if item then
@@ -176,6 +183,8 @@ function GuildDeposit:WithdrawHead()
     end
 end
 
+-- ####################### FRAMES #######################
+-- progress frame on update action
 function GuildDeposit:ProgressFrame_OnUpdate(elapsed)
     self.Info.timer = self.Info.timer - elapsed
     if (self.Info.timer > 0) then return end
@@ -272,6 +281,7 @@ function GuildDeposit:StartWithdraw(tab)
     self.ProgressFrame:Show()
 end
 
+-- ####################### SLASH COMMANDS #######################
 SLASH_TEST1 = "/test"
 SlashCmdList["TEST"] = function(msg) GuildDeposit:StartDeposit() end
 
