@@ -82,7 +82,7 @@ function GuildDeposit:ToDeposit()
     -- reset deposit list, just in case it wasn't emptied last time
     self.depositList = {}
     -- get guild bank free slots for each tab
-    self:GBFreeSlots()
+    self:GuildBankSlots()
     -- scan through bags
     for b = 0, 4, 1 do
         -- bag size
@@ -115,25 +115,37 @@ function GuildDeposit:ToWithdraw(tab)
     end
 end
 
--- scan through guild bank and get the free slots for each tab
-function GuildDeposit:GBFreeSlots()
-    -- reset table
-    self.guildBankSlots = {}
+-- scan through guild bank and get the free slots and partial stacks slots for each tab
+function GuildDeposit:GuildBankSlots()
+    -- reset tables 
+    self.guildBankPartial = {}
+    self.guildBankFree = {}
     local tabs = GetNumGuildBankTabs()
     for t = 1, tabs, 1 do
         local tab_free = {}
+        local tab_partial = {}
         for i = 1, GBSlots, 1 do
-            if not GetGuildBankItemLink(t, i) then
+            local link = GetGuildBankItemLink(t, i)
+            if link then
+                local id = GetItemInfoInstant(link)
+                local _, _, _, _, _, _, _, max = GetItemInfo(link)
+                local _, count = GetGuildBankItemInfo(t, i)
+                if count < max then
+                    table.insert(tab_partial, {slot = i, id = id, count = count})
+                end
+            else
                 table.insert(tab_free, i)
             end
         end
         -- store free slots in tab
-        self.guildBankSlots[t] = tab_free
+        self.guildBankPartial[t] = tab_partial
+        self.guildBankFree[t] = tab_free
     end
 end
 
 -- ####################### INTERACTION LOGIC #######################
 -- store items
+-- ! DEPRECATED
 function GuildDeposit:DoMoves()
     GuildDeposit:ToDeposit()
     local interval = self.conf.interval
@@ -149,10 +161,16 @@ function GuildDeposit:GetHead()
     return
 end
 
+function GuildDeposit:GetFirstIncomplete(tab, id)
+    for k, v in pairs(self.guildBankPartial[tab]) do
+        if v.id == id then return k end
+    end
+end
+
 -- remove and return first free slots in guild bank
 function GuildDeposit:GetGuildHead(tab)
     local t = tonumber(tab)
-    return table.remove(self.guildBankSlots[t], 1)
+    return table.remove(self.guildBankFree[t], 1)
 end
 
 -- perform one move
@@ -242,7 +260,7 @@ function GuildDeposit:CreateProgressFrame()
         timer = 0,
         max = 0,
         counter = 0,
-        whithdraw = false,
+        whithdraw = false
     }
 
     self.ProgressFrame:SetScript("OnUpdate", self.ProgressFrame_OnUpdate)
