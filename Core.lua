@@ -1,5 +1,6 @@
 GuildDeposit = LibStub("AceAddon-3.0"):NewAddon("GuildDeposit")
 local Timer = LibStub("AceTimer-3.0")
+local Gui = LibStub("AceGUI-3.0")
 local _, L = ...
 local GBSlots = 98
 
@@ -204,9 +205,9 @@ end
 -- ####################### FRAMES #######################
 -- progress frame on update action
 function GuildDeposit:ProgressFrame_OnUpdate(elapsed)
-    self.Info.timer = self.Info.timer - elapsed
-    if (self.Info.timer > 0) then return end
-    self.Info.timer = self.Info.interval
+    self.Info.timer = self.Info.timer + elapsed
+    if (self.Info.timer < self.Info.interval) then return end
+    self.Info.timer = 0
     if (self.Info.counter >= self.Info.max) then self.Info.counter = 0 end
     self.status:SetValue(self.Info.counter)
     self.Info.counter = self.Info.counter + 1
@@ -222,25 +223,25 @@ end
 function GuildDeposit:CreateProgressFrame()
     self.ProgressFrame = CreateFrame("Frame", "GuildDepositProgressFrame",
                                      self.UIParent)
-    self.ProgressFrame:Size(140, 40)
+    self.ProgressFrame:Size(120, 20)
     self.ProgressFrame:Point("CENTER", self.UIParent)
     self.ProgressFrame:CreateBackdrop("Transparent")
     self.ProgressFrame:SetAlpha(self.conf.showStatus and 1 or 0)
 
-    self.ProgressFrame.title = self.ProgressFrame:CreateFontString(nil,
-                                                                   "OVERLAY")
-    self.ProgressFrame.title:FontTemplate(nil, 10, "OUTLINE")
-    self.ProgressFrame.title:Point("TOP", self.ProgressFrame, "TOP", 0, -2)
-    self.ProgressFrame.title:SetText(L["Deposit Items"])
+--    self.ProgressFrame.title = self.ProgressFrame:CreateFontString(nil,
+--                                                                   "OVERLAY")
+--    self.ProgressFrame.title:FontTemplate(nil, 10, "OUTLINE")
+--    self.ProgressFrame.title:Point("TOP", self.ProgressFrame, "TOP", 0, -2)
+--    self.ProgressFrame.title:SetText(L["Deposit Items"])
 
     self.ProgressFrame.status = CreateFrame("StatusBar",
                                             "GuildDepositProgressFrameStatus",
                                             self.ProgressFrame)
-    self.ProgressFrame.status:Size(116, 18)
-    self.ProgressFrame.status:Point("BOTTOM", self.ProgressFrame, "BOTTOM", 0, 4)
+    self.ProgressFrame.status:Size(120, 20)
+    self.ProgressFrame.status:Point("CENTER", self.ProgressFrame)
     self.ProgressFrame.status:SetStatusBarTexture("status.bmp")
     self.ProgressFrame.status:SetStatusBarColor(0, 1, 1)
-    self.ProgressFrame.status:CreateBackdrop("Transparent")
+    --self.ProgressFrame.status:CreateBackdrop("Transparent")
 
     self.ProgressFrame.status.animation =
         self.ProgressFrame.status:CreateAnimationGroup()
@@ -255,11 +256,22 @@ function GuildDeposit:CreateProgressFrame()
     self.ProgressFrame.status.text:Point("CENTER", self.ProgressFrame.status)
     self.ProgressFrame.status.text:SetText("0s")
 
+    self.ProgressFrame.cancelButton = CreateFrame("Button", "GuildDepositCancelButton", self.ProgressFrame.status, "UIPanelSquareButton")
+    self.ProgressFrame.cancelButton:SetSize(20,20)
+    self.ProgressFrame.cancelButton:SetPoint("RIGHT", self.ProgressFrame.status)
+    self.ProgressFrame.cancelButton:SetText("X")
+    self.ProgressFrame.cancelButton:SetScript("OnClick", function () self.ProgressFrame:Hide() end)
+
     self.ProgressFrame.Info = {
+        -- action interval
         interval = 0,
+        -- iteration skip timer
         timer = 0,
+        -- amount of items to move
         max = 0,
+        -- amount moved
         counter = 0,
+        -- withdraw or deposit
         whithdraw = false
     }
 
