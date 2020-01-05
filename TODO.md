@@ -1,4 +1,3 @@
-- improve incomplete check
 - autodeposit reagents
   - tab to type
 - buttons for guildbank ui
