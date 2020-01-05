@@ -118,7 +118,7 @@ end
 
 -- scan through guild bank and get the free slots and partial stacks slots for each tab
 function GuildDeposit:GuildBankSlots()
-    -- reset tables 
+    -- reset tables
     self.guildBankPartial = {}
     self.guildBankFree = {}
     local tabs = GetNumGuildBankTabs()

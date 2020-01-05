@@ -15,7 +15,7 @@ local GetMapString = function(info)
     for k, v in pairs(core.conf.map) do
         local info = core.conf.itemInfo[k]
         if not info then return "error" end
-        str = str .. info.link .. "-" .. v .. "\n"
+        str = str .. info.link .. " -> " .. v .. "\n"
     end
     return str
 end
@@ -25,21 +25,17 @@ local ParseMapString = function(info, val)
     local linesplit = {strsplit("\n", val)}
     local temp = {}
     for _, i in pairs(linesplit) do
-        local key, tab = strsplit("-", i)
-        -- skip empty lines
-        if key and tab then
-            local tabnum = tonumber(tab)
-            if not tabnum then
-                print(
-                    L["ERROR: wrong format, tab must bee a number!. See usage for more info"])
-                return
+        local sep = string.find(i, "->")
+        if sep then
+            local item = string.sub(i, 1, sep - 1)
+            local id = GetItemInfoInstant(item)
+            local rawnum = string.sub(i, sep)
+            local num = tonumber(string.match(rawnum, "%d"))
+            if id and num and num > 0 and num < 7 then
+                table.insert(temp, id, num)
+            else
+                print(L["ERROR: wrong table format. See usage for more info."])
             end
-            local id = GetItemInfoInstant(key)
-            if not id then
-                print(L["ERROR: invalid item!"])
-                return
-            end
-            table.insert(temp, id, tabnum)
         end
     end
     core.conf.map = temp
@@ -48,11 +44,13 @@ end
 local AddMap = function()
     if core.t1 and core.t2 then
         local id = GetItemInfoInstant(core.t1)
-        if not id then print(L["ERROR: invalid item."]) 
-        return
+        if not id then
+            print(L["ERROR: invalid item."])
+            return
         end
         table.insert(core.conf.map, id, core.t2)
-    else 
+        core.t1, core.t2 = nil
+    else
         print("ERROR: invalid input.")
     end
 end
@@ -147,11 +145,7 @@ local mapOptions = {
 }
 
 local usageOptions = {
-    addTitle = {
-        name = L["Add Map"],
-        type = 'header',
-        order = 10
-    },
+    addTitle = {name = L["Add Map"], type = 'header', order = 10},
     addDesc = {
         name = L["Item name: item name (must be in bag) | item link | item id"],
         type = 'description',
@@ -159,7 +153,7 @@ local usageOptions = {
     },
     mapAddDesc = {
         name = L["Add mapping format: <item>-<tab>. <item>: item name (must be in bags) | item link | item id. <tab>: tab number between 1 and 6 (tab must be owned)."],
-        type  = 'description',
+        type = 'description',
         order = 30
     },
     mapDeleteDesc = {
@@ -254,7 +248,7 @@ end
 -- function core:Defaults()
 --     local defaults = {
 --         profile = {
---             interval = 0.5   
+--             interval = 0.5
 --         }
 --     }
 --     return defaults
