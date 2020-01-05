@@ -152,7 +152,7 @@ local usageOptions = {
         order = 20
     },
     mapAddDesc = {
-        name = L["Add mapping format: <item>-<tab>. <item>: item name (must be in bags) | item link | item id. <tab>: tab number between 1 and 6 (tab must be owned)."],
+        name = L["Add mapping format: <item> -> <tab>. <item>: item name (must be in bags) | item link | item id. <tab>: tab number between 1 and 6 (tab must be owned). NOTE: the '->' separator is required."],
         type = 'description',
         order = 30
     },
