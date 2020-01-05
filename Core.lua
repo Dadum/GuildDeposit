@@ -4,16 +4,27 @@ local Gui = LibStub("AceGUI-3.0")
 local _, L = ...
 local GBSlots = 98
 
--- ####################### INIT #######################
+-- * INIT ----------------------------------------------------------------------
 function GuildDeposit:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("GuildDepositDB", self.defaults, true)
     self.conf = self.db.profile
     self:SetupConfig()
     self:CreateProgressFrame()
     self:Events()
+    -- self:testbutton()
 end
 
--- ####################### EVENTS #######################
+function GuildDeposit:testbutton()
+    self.Button = CreateFrame("Button", nil, GuildBankFrameWithdrawButton,
+                              "UIPanelButtonTemplate")
+    self.Button:SetPoint("RIGHT", GuildBankFrameWithdrawButton, "LEFT")
+    self.Button:SetSize(100, 20)
+    self.Button:SetText("TEST")
+    self.Button:SetScript("OnClick", function() print("test") end)
+    self.Button:Show()
+end
+
+-- * EVENTS --------------------------------------------------------------------
 -- guild bank closed
 function GuildDeposit:OnGuildBankClose() self.ProgressFrame:Hide() end
 
@@ -30,7 +41,7 @@ function GuildDeposit:Events()
     end)
 end
 
--- ####################### MAP LOGIC #######################
+-- *  MAP LOGIC ----------------------------------------------------------------
 -- add entry to map ass well as link and item name in a separate table
 function GuildDeposit:AddMap(id, tab)
     local name, link = GetItemInfo(id)
@@ -88,7 +99,7 @@ function GuildDeposit:CheckIncomplete(tab, id, quantity)
             else
                 self.guildBankPartial[tab][k].count = v.count + quantity
             end
-            return v.slot, (diff >= 0)
+            return v.slot, -diff
         end
     end
 end
@@ -109,8 +120,8 @@ function GuildDeposit:ToDeposit()
             if id and self.conf.map[id] then
                 local tab = self.conf.map[id]
                 local _, count = GetContainerItemInfo(b, i)
-                local slot, fits = self:CheckIncomplete(tab, id, count)
-                if not slot and not fits then
+                local slot, rem = self:CheckIncomplete(tab, id, count)
+                if not slot and not rem then
                     -- no incomplete stack
                     slot = self:GetGuildHead(tab)
                 end
@@ -121,16 +132,20 @@ function GuildDeposit:ToDeposit()
                     to_tab = tab,
                     to_slot = slot
                 })
-                if fits == false then
-                        -- needs two moves
-                        local slot2 = self:GetGuildHead(tab)
+                if rem then
+                    while rem > 0 do
+                        slot, rem = self:CheckIncomplete(tab, id, count)
+                        if not slot and not rem then
+                            slot = self:GetGuildHead(tab)
+                        end
                         table.insert(self.depositList, {
-                        id = id,
-                        from_bag = b,
-                        from_slot = i,
-                        to_tab = tab,
-                        to_slot = slot2
-                    })
+                            id = id,
+                            from_bag = b,
+                            from_slot = i,
+                            to_tab = tab,
+                            to_slot = slot
+                        })
+                    end
                 end
             end
         end
@@ -177,7 +192,7 @@ function GuildDeposit:GuildBankSlots()
     end
 end
 
--- ####################### INTERACTION LOGIC #######################
+-- * INTERACTION LOGIC ---------------------------------------------------------
 -- store items
 -- ! DEPRECATED
 function GuildDeposit:DoMoves()
@@ -235,7 +250,7 @@ function GuildDeposit:WithdrawHead()
     end
 end
 
--- ####################### FRAMES #######################
+-- * FRAMES --------------------------------------------------------------------
 -- progress frame on update action
 function GuildDeposit:ProgressFrame_OnUpdate(elapsed)
     self.Info.timer = self.Info.timer + elapsed
@@ -349,7 +364,7 @@ function GuildDeposit:StartWithdraw(tab)
     self.ProgressFrame:Show()
 end
 
--- ####################### SLASH COMMANDS #######################
+-- * SLASH COMMANDS ------------------------------------------------------------
 SLASH_TEST1 = "/test"
 SlashCmdList["TEST"] = function(msg) GuildDeposit:StartDeposit() end
 
