@@ -78,6 +78,21 @@ function GuildDeposit:ClearMap()
     print("map cleared")
 end
 
+function GuildDeposit:CheckIncomplete(tab, id, quantity)
+    for k, v in pairs(self.guildBankPartial[tab]) do
+        if v.id == id then
+            local diff = v.max - v.count - quantity
+            if diff < 0 then
+                -- stack filled
+                table.remove(self.guildBankPartial[tab], k)
+            else
+                self.guildBankPartial[tab][k].count = v.count + quantity
+            end
+            return v.slot, (diff >= 0)
+        end
+    end
+end
+
 -- compose list of items that have to be deposited and where they can be placed
 function GuildDeposit:ToDeposit()
     -- reset deposit list, just in case it wasn't emptied last time
@@ -93,13 +108,30 @@ function GuildDeposit:ToDeposit()
             local id = GetContainerItemID(b, i)
             if id and self.conf.map[id] then
                 local tab = self.conf.map[id]
+                local _, count = GetContainerItemInfo(b, i)
+                local slot, fits = self:CheckIncomplete(tab, id, count)
+                if not slot and not fits then
+                    -- no incomplete stack
+                    slot = self:GetGuildHead(tab)
+                end
                 table.insert(self.depositList, {
                     id = id,
                     from_bag = b,
                     from_slot = i,
                     to_tab = tab,
-                    to_slot = self:GetGuildHead(tab)
+                    to_slot = slot
                 })
+                if fits == false then
+                        -- needs two moves
+                        local slot2 = self:GetGuildHead(tab)
+                        table.insert(self.depositList, {
+                        id = id,
+                        from_bag = b,
+                        from_slot = i,
+                        to_tab = tab,
+                        to_slot = slot2
+                    })
+                end
             end
         end
     end
@@ -132,7 +164,8 @@ function GuildDeposit:GuildBankSlots()
                 local _, _, _, _, _, _, _, max = GetItemInfo(link)
                 local _, count = GetGuildBankItemInfo(t, i)
                 if count < max then
-                    table.insert(tab_partial, {slot = i, id = id, count = count})
+                    table.insert(tab_partial,
+                                 {slot = i, id = id, count = count, max = max})
                 end
             else
                 table.insert(tab_free, i)
@@ -228,11 +261,11 @@ function GuildDeposit:CreateProgressFrame()
     self.ProgressFrame:CreateBackdrop("Transparent")
     self.ProgressFrame:SetAlpha(self.conf.showStatus and 1 or 0)
 
---    self.ProgressFrame.title = self.ProgressFrame:CreateFontString(nil,
---                                                                   "OVERLAY")
---    self.ProgressFrame.title:FontTemplate(nil, 10, "OUTLINE")
---    self.ProgressFrame.title:Point("TOP", self.ProgressFrame, "TOP", 0, -2)
---    self.ProgressFrame.title:SetText(L["Deposit Items"])
+    --    self.ProgressFrame.title = self.ProgressFrame:CreateFontString(nil,
+    --                                                                   "OVERLAY")
+    --    self.ProgressFrame.title:FontTemplate(nil, 10, "OUTLINE")
+    --    self.ProgressFrame.title:Point("TOP", self.ProgressFrame, "TOP", 0, -2)
+    --    self.ProgressFrame.title:SetText(L["Deposit Items"])
 
     self.ProgressFrame.status = CreateFrame("StatusBar",
                                             "GuildDepositProgressFrameStatus",
@@ -241,7 +274,7 @@ function GuildDeposit:CreateProgressFrame()
     self.ProgressFrame.status:Point("CENTER", self.ProgressFrame)
     self.ProgressFrame.status:SetStatusBarTexture("status.bmp")
     self.ProgressFrame.status:SetStatusBarColor(0, 1, 1)
-    --self.ProgressFrame.status:CreateBackdrop("Transparent")
+    -- self.ProgressFrame.status:CreateBackdrop("Transparent")
 
     self.ProgressFrame.status.animation =
         self.ProgressFrame.status:CreateAnimationGroup()
@@ -256,11 +289,16 @@ function GuildDeposit:CreateProgressFrame()
     self.ProgressFrame.status.text:Point("CENTER", self.ProgressFrame.status)
     self.ProgressFrame.status.text:SetText("0s")
 
-    self.ProgressFrame.cancelButton = CreateFrame("Button", "GuildDepositCancelButton", self.ProgressFrame.status, "UIPanelSquareButton")
-    self.ProgressFrame.cancelButton:SetSize(20,20)
+    self.ProgressFrame.cancelButton = CreateFrame("Button",
+                                                  "GuildDepositCancelButton",
+                                                  self.ProgressFrame.status,
+                                                  "UIPanelSquareButton")
+    self.ProgressFrame.cancelButton:SetSize(20, 20)
     self.ProgressFrame.cancelButton:SetPoint("RIGHT", self.ProgressFrame.status)
     self.ProgressFrame.cancelButton:SetText("X")
-    self.ProgressFrame.cancelButton:SetScript("OnClick", function () self.ProgressFrame:Hide() end)
+    self.ProgressFrame.cancelButton:SetScript("OnClick", function()
+        self.ProgressFrame:Hide()
+    end)
 
     self.ProgressFrame.Info = {
         -- action interval

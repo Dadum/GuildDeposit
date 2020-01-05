@@ -1,4 +1,4 @@
-- check stackable for deposit (getiteminfo returns maxstack)
+- improve incomplete check
 - autodeposit reagents
   - tab to type
 - buttons for guildbank ui
