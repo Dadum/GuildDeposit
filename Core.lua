@@ -121,7 +121,7 @@ function GuildDeposit:ToDeposit()
                 local tab = self.conf.map[id]
                 local _, count = GetContainerItemInfo(b, i)
                 local slot, rem = self:CheckIncomplete(tab, id, count)
-                if not slot and not rem then
+                if not slot or not rem then
                     -- no incomplete stack
                     slot = self:GetGuildHead(tab)
                 end
@@ -132,10 +132,10 @@ function GuildDeposit:ToDeposit()
                     to_tab = tab,
                     to_slot = slot
                 })
-                if rem then
-                    while rem > 0 do
+                    while rem and rem > 0 do
+                        -- needs multiple moves from same slot
                         slot, rem = self:CheckIncomplete(tab, id, count)
-                        if not slot and not rem then
+                        if not slot or not rem then
                             slot = self:GetGuildHead(tab)
                         end
                         table.insert(self.depositList, {
@@ -146,7 +146,6 @@ function GuildDeposit:ToDeposit()
                             to_slot = slot
                         })
                     end
-                end
             end
         end
     end
