@@ -3,4 +3,5 @@
 - buttons for guildbank ui
 - merge stacks
 - sort
-- 
+- fix auto deposit
+- auto deposit gold (leave min in bag)

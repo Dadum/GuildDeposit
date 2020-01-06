@@ -332,6 +332,7 @@ function GuildDeposit:CreateProgressFrame()
     self.ProgressFrame:Hide()
 end
 
+-- setup progressbar and start depositing items 
 function GuildDeposit:StartDeposit()
     self:ToDeposit()
     self.ProgressFrame:SetAlpha(self.conf.showStatus and 1 or 0)
@@ -347,6 +348,7 @@ function GuildDeposit:StartDeposit()
     self.ProgressFrame:Show()
 end
 
+-- setup progress map and start withrawing items from tab
 function GuildDeposit:StartWithdraw(tab)
     self:ToWithdraw(tab)
     self.ProgressFrame:SetAlpha(self.conf.showStatus and 1 or 0)
