@@ -1,7 +1,9 @@
-- autodeposit reagents
+- map types option
   - tab to type
 - buttons for guildbank ui
 - merge stacks
 - sort
-- fix auto deposit
+  - name
+  - id
+  - type
 - auto deposit gold (leave min in bag)
