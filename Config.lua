@@ -101,17 +101,17 @@ local generalOptions = {
         set = function(info, val) core.conf.withdrawInterval = val end,
         get = function(info) return core.conf.withdrawInterval end
     },
-    autoInterval = {
-        name = L["Auto Deposit Inteval"],
-        desc = L["Time interval before starting auto depositing items. Try increasing if auto deposit misses some items."],
+    autoDelay = {
+        name = L["Auto Deposit Delay"],
+        desc = L["Time delay before starting auto depositing items. Try increasing if auto deposit misses some items."],
         type = 'range',
         width = 'full',
         order = 5,
         min = 0.1,
         max = 5.0,
         step = 0.1,
-        set = function(info, val) core.conf.autoInterval = val end,
-        get = function(info) return core.conf.autoInterval end
+        set = function(info, val) core.conf.autoDelay = val end,
+        get = function(info) return core.conf.autoDelay end
     }
 }
 
@@ -241,7 +241,7 @@ core.defaults = {
         autoDeposit = false,
         depositInterval = 0.5,
         withdrawInterval = 0.5,
-        autoInterval = 0.5,
+        autoDelay = 0.5,
         map = {},
         itemInfo = {}
     }

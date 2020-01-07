@@ -37,7 +37,7 @@ function GuildDeposit:Events()
     self.GB_OPEN = CreateFrame('Frame')
     self.GB_OPEN:RegisterEvent('GUILDBANKFRAME_OPENED')
     self.GB_OPEN:SetScript("OnEvent", function()
-        if self.conf.autoDeposit then Timer:ScheduleTimer(function() self:StartDeposit() end, self.conf.autoInterval) end
+        if self.conf.autoDeposit then Timer:ScheduleTimer(function() self:StartDeposit() end, self.conf.autoDelay) end
     end)
 end
 
