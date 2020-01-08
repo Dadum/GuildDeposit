@@ -37,7 +37,10 @@ function GuildDeposit:Events()
     self.GB_OPEN = CreateFrame('Frame')
     self.GB_OPEN:RegisterEvent('GUILDBANKFRAME_OPENED')
     self.GB_OPEN:SetScript("OnEvent", function()
-        if self.conf.autoDeposit then Timer:ScheduleTimer(function() self:StartDeposit() end, self.conf.autoDelay) end
+        if self.conf.autoDeposit then
+            Timer:ScheduleTimer(function() self:StartDeposit() end,
+                                self.conf.autoDelay)
+        end
     end)
 end
 
@@ -99,6 +102,7 @@ function GuildDeposit:CheckIncomplete(tab, id, quantity)
             else
                 self.guildBankPartial[tab][k].count = v.count + quantity
             end
+            -- diff negative on overflow, want remaining amount to deposit
             return v.slot, -diff
         end
     end
@@ -132,20 +136,20 @@ function GuildDeposit:ToDeposit()
                     to_tab = tab,
                     to_slot = slot
                 })
-                    while rem and rem > 0 do
-                        -- needs multiple moves from same slot
-                        slot, rem = self:CheckIncomplete(tab, id, count)
-                        if not slot or not rem then
-                            slot = self:GetGuildHead(tab)
-                        end
-                        table.insert(self.depositList, {
-                            id = id,
-                            from_bag = b,
-                            from_slot = i,
-                            to_tab = tab,
-                            to_slot = slot
-                        })
+                while rem and rem > 0 do
+                    -- needs multiple moves from same slot
+                    slot, rem = self:CheckIncomplete(tab, id, count)
+                    if not slot or not rem then
+                        slot = self:GetGuildHead(tab)
                     end
+                    table.insert(self.depositList, {
+                        id = id,
+                        from_bag = b,
+                        from_slot = i,
+                        to_tab = tab,
+                        to_slot = slot
+                    })
+                end
             end
         end
     end
@@ -194,11 +198,11 @@ end
 -- * INTERACTION LOGIC ---------------------------------------------------------
 -- store items
 -- ! DEPRECATED
-function GuildDeposit:DoMoves()
-    GuildDeposit:ToDeposit()
-    local interval = self.conf.interval
-    Timer:ScheduleRepeatingTimer("MoveHead", interval)
-end
+-- function GuildDeposit:DoMoves()
+--     GuildDeposit:ToDeposit()
+--     local interval = self.conf.interval
+--     Timer:ScheduleRepeatingTimer("MoveHead", interval)
+-- end
 
 -- remove and return head of the table of items to move
 function GuildDeposit:GetHead()
