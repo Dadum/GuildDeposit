@@ -10,4 +10,5 @@ embeds.xml
 Localization/Localization.core.lua
 
 Core.lua
+Data.lua
 Config.lua
