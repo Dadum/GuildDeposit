@@ -1,6 +1,7 @@
-local core = GuildDeposit
 local _, L = ...
+local core = GuildDeposit
 
+-- * HELPERS ------------------------------------------------------------------
 -- get available tabs in a table
 local GetTabs = function()
     local ntabs = GetNumGuildBankTabs()
@@ -55,6 +56,26 @@ local AddMap = function()
     end
 end
 
+local GetTypes = function()
+    local typeStrings = {}
+    for k, v in pairs(core.itemTypes) do
+        table.insert(typeStrings, k, GetItemClassInfo(v))
+    end
+    return typeStrings
+end
+
+local GetSubtypes = function()
+    local subtypeStrings = {}
+    if core.t3 then
+        for k, v in pairs(core.itemSubtypes[core.t3]) do
+            print(v)
+            table.insert(subtypeStrings, k, GetItemSubClassInfo(core.t3, v))
+        end
+    end
+    return subtypeStrings
+end
+
+-- * OPTIONS ------------------------------------------------------------------
 local generalOptions = {
     showStatus = {
         name = L["Show Progress Bar"],
@@ -153,6 +174,26 @@ local mapOptions = {
         get = GetMapString,
         -- parse input string to map
         set = ParseMapString
+    },
+    typeSelect = {
+        name = "typeselect",
+        type = 'select',
+        order = 60,
+        values = GetTypes,
+        set = function(info, val)
+            core.t3 = val
+            LibStub("AceConfigRegistry-3.0"):NotifyChange("GuildDeposit")
+        end,
+        get = function(info) return core.t3 end
+    },
+    subtypeSelect = {
+        name = "subtypeselect",
+        type = 'select',
+        order = 70,
+        values = GetSubtypes(),
+        disabled = function() return core.t3 == nil end,
+        set = function(info, val) core.t4 = val end,
+        get = function(info) return core.t4 end
     }
 }
 
@@ -235,6 +276,7 @@ core.options = {
     }
 }
 
+-- * DEFAULTS -----------------------------------------------------------------
 core.defaults = {
     profile = {
         showStatus = true,
@@ -247,22 +289,14 @@ core.defaults = {
     }
 }
 
+-- * SETUP --------------------------------------------------------------------
 function core:SetupConfig()
-    local acreg = LibStub("AceConfig-3.0")
-    acreg:RegisterOptionsTable("GuildDeposit", core.options)
-    -- acreg:RegisterOptionsTable("GuildDeposit Profiles", LibStub(
+    local conf = LibStub("AceConfig-3.0")
+    conf:RegisterOptionsTable("GuildDeposit", core.options)
+    -- conf:RegisterOptionsTable("GuildDeposit Profiles", LibStub(
     --                               "AceDBOptions-3.0"):GetOptionsTable(core.db))
 
-    local acdia = LibStub("AceConfigDialog-3.0")
-    acdia:AddToBlizOptions("GuildDeposit", "GuildDeposit")
-    -- acdia:AddToBlizOptions("GuildDeposit Profiles", "Profiles", "GuildDeposit")
+    local dialog = LibStub("AceConfigDialog-3.0")
+    dialog:AddToBlizOptions("GuildDeposit", "GuildDeposit")
+    -- dialog:AddToBlizOptions("GuildDeposit Profiles", "Profiles", "GuildDeposit")
 end
-
--- function core:Defaults()
---     local defaults = {
---         profile = {
---             interval = 0.5
---         }
---     }
---     return defaults
--- end
