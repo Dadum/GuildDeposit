@@ -13,17 +13,15 @@ function GuildDeposit:OnInitialize()
     self:SetupConfig()
     self:CreateProgressFrame()
     self:Events()
-    -- self:testbutton()
+    --self:testbutton()
 end
 
 function GuildDeposit:testbutton()
-    self.Button = CreateFrame("Button", nil, GuildBankFrameWithdrawButton,
-                              "UIPanelButtonTemplate")
-    self.Button:SetPoint("RIGHT", GuildBankFrameWithdrawButton, "LEFT")
-    self.Button:SetSize(100, 20)
-    self.Button:SetText("TEST")
-    self.Button:SetScript("OnClick", function() print("test") end)
-    self.Button:Show()
+    self.Button = CreateFrame("Frame", nil, GuildBankFrame)
+    self.Button:SetPoint("RIGHT", GuildBankFrame, "RIGHT", 10, 0)
+    self.Button:SetSize(100, 200)
+    self.Button:CreateBackdrop("Transparent")
+    self.Button:SetAlpha(1)
 end
 
 -- * EVENTS --------------------------------------------------------------------
@@ -125,11 +123,14 @@ function GuildDeposit:ToDeposit()
             local id = GetContainerItemID(b, i)
             if id and self.conf.map[id] then
                 local tab = self.conf.map[id]
+                local _, _, _, _, _, _, _, max = GetItemInfo(id)
                 local _, count = GetContainerItemInfo(b, i)
                 local slot, rem = self:CheckIncomplete(tab, id, count)
                 if not slot or not rem then
                     -- no incomplete stack
                     slot = self:GetGuildHead(tab)
+                    -- add possible incomplete
+                    table.insert(self.guildBankPartial[tab], {slot = slot, id = id, count = count, max = max})
                 end
                 table.insert(self.depositList, {
                     id = id,
@@ -143,6 +144,7 @@ function GuildDeposit:ToDeposit()
                     slot, rem = self:CheckIncomplete(tab, id, count)
                     if not slot or not rem then
                         slot = self:GetGuildHead(tab)
+                        table.insert(self.guildBankPartial[tab], {slot = slot, id = id, count = count, max = max})
                     end
                     table.insert(self.depositList, {
                         id = id,
@@ -304,17 +306,17 @@ function GuildDeposit:CreateProgressFrame()
                                             self.ProgressFrame)
     self.ProgressFrame.status:Size(120, 20)
     self.ProgressFrame.status:Point("LEFT", self.ProgressFrame, 2.5, 0)
-    self.ProgressFrame.status:SetStatusBarTexture("status.bmp")
-    self.ProgressFrame.status:SetStatusBarColor(0, 1, 1)
+    self.ProgressFrame.status:SetStatusBarTexture("status.tga")
+    self.ProgressFrame.status:SetStatusBarColor(1, 0, 0)
     -- self.ProgressFrame.status:CreateBackdrop("Transparent")
 
     -- progress bar animation
-    self.ProgressFrame.status.animation =
+    --[[     self.ProgressFrame.status.animation =
         self.ProgressFrame.status:CreateAnimationGroup()
     self.ProgressFrame.status.animation.progress =
         self.ProgressFrame.status.animation:CreateAnimation("Progress")
     self.ProgressFrame.status.animation.progress:SetSmoothing("OUT")
-    self.ProgressFrame.status.animation.progress:SetDuration(self.conf.depositInterval)
+    self.ProgressFrame.status.animation.progress:SetDuration(self.conf.depositInterval) ]]
 
     -- progress text
     self.ProgressFrame.status.text = self.ProgressFrame.status:CreateFontString(
@@ -329,7 +331,8 @@ function GuildDeposit:CreateProgressFrame()
                                                   self.ProgressFrame.status,
                                                   "UIPanelSquareButton")
     self.ProgressFrame.cancelButton:SetSize(20, 20)
-    self.ProgressFrame.cancelButton:SetPoint("RIGHT", self.ProgressFrame, -2.5, 0)
+    self.ProgressFrame.cancelButton:SetPoint("RIGHT", self.ProgressFrame, -2.5,
+                                             0)
     self.ProgressFrame.cancelButton:SetText("X")
     self.ProgressFrame.cancelButton:SetScript("OnClick", function()
         self.ProgressFrame:Hide()
