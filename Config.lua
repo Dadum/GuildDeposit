@@ -15,8 +15,13 @@ local GetMapString = function(info)
     local str = ""
     for k, v in pairs(core.conf.map) do
         local info = core.conf.itemInfo[k]
-        if not info then return "error" end
-        str = str .. info.link .. " -> " .. v .. "\n"
+        local t = ""
+        if not info then
+            t = "nd"
+        else
+            t = info.link
+        end
+        str = str .. t .. " -> " .. v .. "\n"
     end
     return str
 end
