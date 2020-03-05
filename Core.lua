@@ -2,7 +2,7 @@ GuildDeposit = LibStub("AceAddon-3.0"):NewAddon("GuildDeposit")
 local Timer = LibStub("AceTimer-3.0")
 local Gui = LibStub("AceGUI-3.0")
 local _, L = ...
-
+-- TODO(dadum) test
 -- * DATA ---------------------------------------------------------------------
 local GBSlots = 98
 
